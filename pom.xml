@@ -10,7 +10,7 @@
     <version>MC-1.7.11</version>
     <name>Spleef</name>
     <url>https://github.com/Vayzd/Spleef</url>
-    <description>Fast, responsive and easy configurable Spleef plugin for Spigot.</description>
+    <description>Fast and responsive (mini-) game plugin for Spigot.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

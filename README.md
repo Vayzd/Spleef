@@ -1,2 +1,2 @@
 # Spleef
-Fast, responsive and easy configurable Spleef plugin for Spigot.
+Fast and responsive (mini-) game plugin for Spigot.
