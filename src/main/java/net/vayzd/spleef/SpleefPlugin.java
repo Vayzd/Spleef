@@ -24,9 +24,12 @@
  */
 package net.vayzd.spleef;
 
+import net.vayzd.spleef.listener.*;
 import org.bukkit.plugin.java.*;
 
 public class SpleefPlugin extends JavaPlugin {
+
+    private final MapControl mapControl = new MapControl();
 
     @Override
     public void onLoad() {
@@ -35,11 +38,13 @@ public class SpleefPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
+        //register listener
+        getServer().getPluginManager().registerEvents(mapControl, this);
     }
 
     @Override
     public void onDisable() {
-        
+        //for now reset map when plugin is being disabled
+        mapControl.resetMap();
     }
 }
