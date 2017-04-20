@@ -1,0 +1,7 @@
+name: ${name}
+main: net.vayzd.spleef.SpleefPlugin
+author: MrRumpunsh
+version: ${version}
+description: ${description}
+load: POSTWORLD
+database: false
