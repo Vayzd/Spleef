@@ -27,8 +27,11 @@ package net.vayzd.spleef;
 import net.vayzd.spleef.listener.*;
 import org.bukkit.plugin.java.*;
 
+import java.util.concurrent.atomic.*;
+
 public class SpleefPlugin extends JavaPlugin {
 
+    private final AtomicReference<GamePhase> phaseReference = new AtomicReference<>(null);
     private final MapControl mapControl = new MapControl();
 
     @Override
@@ -40,11 +43,25 @@ public class SpleefPlugin extends JavaPlugin {
     public void onEnable() {
         //register listener
         getServer().getPluginManager().registerEvents(mapControl, this);
+        //once everything is loaded -> set phase to SERVER_EMPTY
+        setGamePhase(GamePhase.SERVER_EMPTY);
     }
 
     @Override
     public void onDisable() {
         //for now reset map when plugin is being disabled
         mapControl.resetMap();
+    }
+
+    public final GamePhase getGamePhase() {
+        return phaseReference.get();
+    }
+
+    public void setGamePhase(GamePhase newGamePhase) {
+        phaseReference.set(newGamePhase);
+    }
+
+    public boolean isGamePhaseEqualTo(GamePhase phaseToCheck) {
+        return phaseToCheck.equals(getGamePhase());
     }
 }
