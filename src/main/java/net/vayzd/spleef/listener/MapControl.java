@@ -53,13 +53,11 @@ public class MapControl implements Listener {
     public void onProjectileHit(ProjectileHitEvent event) {
         final Block origin = event.getHitBlock();
         if (origin.getType().equals(Material.TNT)) {
+            toReset.add(origin.getLocation().clone());
             toCheck.forEach(blockFace -> {
                 Block relative = origin.getRelative(blockFace);
                 if (relative.getType().equals(Material.TNT)) {
-                    Location location = relative.getLocation().clone();
-                    if (!toReset.contains(location)) {
-                        toReset.add(location);
-                    }
+                    toReset.add(relative.getLocation().clone());
                 }
             });
         }
