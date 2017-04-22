@@ -4,3 +4,4 @@ database:
   username: unknown
   password: unknown
   database: unknown
+pool-size: 1
