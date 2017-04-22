@@ -24,17 +24,21 @@
  */
 package net.vayzd.spleef.listener;
 
+import lombok.*;
 import org.bukkit.*;
 import org.bukkit.block.*;
+import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
+import org.bukkit.util.*;
 
 import java.util.*;
 import java.util.concurrent.*;
 
 import static java.util.Arrays.*;
 
+@RequiredArgsConstructor
 public class MapControl implements Listener {
 
     private final LinkedList<BlockFace> toCheck = new LinkedList<>(asList(
@@ -47,19 +51,32 @@ public class MapControl implements Listener {
             BlockFace.WEST,
             BlockFace.NORTH_WEST
     ));
+    private final boolean pre_1_11;
     private final Queue<Location> toReset = new ConcurrentLinkedQueue<>();
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onProjectileHit(ProjectileHitEvent event) {
-        final Block origin = event.getHitBlock();
-        if (origin.getType().equals(Material.TNT)) {
-            toReset.add(origin.getLocation().clone());
-            toCheck.forEach(blockFace -> {
-                Block relative = origin.getRelative(blockFace);
-                if (relative.getType().equals(Material.TNT)) {
-                    toReset.add(relative.getLocation().clone());
+        if (pre_1_11) {
+            Projectile projectile = event.getEntity();
+            BlockIterator iterator = new BlockIterator(
+                    projectile.getWorld(),
+                    projectile.getLocation().toVector(),
+                    projectile.getVelocity().normalize(),
+                    0.0D,
+                    4
+            );
+            while (iterator.hasNext()) {
+                Block block = iterator.next();
+                if (!block.getType().equals(Material.TNT)) {
+                    continue;
                 }
-            });
+                checkForRelatives(block);
+            }
+        } else {
+            Block origin = event.getHitBlock();
+            if (origin.getType().equals(Material.TNT)) {
+                checkForRelatives(origin);
+            }
         }
     }
 
@@ -95,4 +112,15 @@ public class MapControl implements Listener {
             }
         }
     }
+
+    private void checkForRelatives(final Block origin) {
+        toReset.add(origin.getLocation().clone());
+        toCheck.forEach(blockFace -> {
+            Block relative = origin.getRelative(blockFace);
+            if (relative.getType().equals(Material.TNT)) {
+                toReset.add(relative.getLocation().clone());
+            }
+        });
+    }
+
 }

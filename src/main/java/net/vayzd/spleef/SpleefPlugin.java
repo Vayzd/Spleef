@@ -24,15 +24,27 @@
  */
 package net.vayzd.spleef;
 
+import lombok.*;
+import net.vayzd.spleef.datastore.*;
 import net.vayzd.spleef.listener.*;
+import net.vayzd.spleef.player.*;
 import org.bukkit.plugin.java.*;
 
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+@Getter
 public class SpleefPlugin extends JavaPlugin {
 
+    private final ConcurrentMap<UUID, SpleefSpectator> spectatorMap = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> playtimeMap = new HashMap<>();
+    private final AtomicInteger onlineCount = new AtomicInteger(0);
+    private DataStore dataStore;
+    private MapControl mapControl;
+    @Getter(AccessLevel.NONE)
     private final AtomicReference<GamePhase> phaseReference = new AtomicReference<>(null);
-    private final MapControl mapControl = new MapControl();
 
     @Override
     public void onLoad() {
@@ -41,6 +53,17 @@ public class SpleefPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        try {
+            getLogger().info("Connecting to database...");
+            dataStore = SpleefDataStore.getDataStore(this, getConfig());
+            dataStore.connect();
+            getLogger().info("Success!");
+        } catch (SQLException ex) {
+            getLogger().warning("Unable to connect to database! Disabling...");
+            setEnabled(false);
+        }
+        mapControl = new MapControl(!getServer().getVersion().contains("1.11"));
         //register listener
         getServer().getPluginManager().registerEvents(mapControl, this);
         //once everything is loaded -> set phase to SERVER_EMPTY
@@ -51,6 +74,7 @@ public class SpleefPlugin extends JavaPlugin {
     public void onDisable() {
         //for now reset map when plugin is being disabled
         mapControl.resetMap();
+        dataStore.disconnect();
     }
 
     public final GamePhase getGamePhase() {

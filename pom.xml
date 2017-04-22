@@ -7,7 +7,7 @@
     <groupId>net.vayzd</groupId>
     <artifactId>spleef</artifactId>
     <packaging>jar</packaging>
-    <version>MC-1.11.2</version>
+    <version>MC-1.7.11</version>
     <name>Spleef</name>
     <url>https://github.com/Vayzd/Spleef</url>
     <description>Fast and responsive (mini-) game plugin for Spigot.</description>
