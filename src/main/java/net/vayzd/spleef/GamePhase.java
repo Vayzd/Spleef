@@ -37,81 +37,56 @@ public enum GamePhase {
      * Set when the plugin has been enabled successfully.
      * Zero players online, yet ready to accept new players.
      */
-    SERVER_EMPTY(
-            "",
-            true,
-            false
-    ),
+    SERVER_EMPTY(true, false),
 
     /**
      * Switched to upon first contact with players. During this
      * phase the game will eventually begin to start once the
      * required player count for the game to start is reached.
-     *
+     * <p>
      * However, if all players quit during this phase and the
      * current player count is equal to {@code 0} the current
      * {@link GamePhase} is being / should be set to
      * {@code SERVER_EMPTY} again.
      */
-    LOBBY(
-            "",
-            true,
-            false
-    ),
+    LOBBY(true, false),
 
     /**
      * Once the lobby countdown reached its end, all players are
      * moved to the arena. Afterwards the starting countdown
      * will be initialized.
-     *
+     * <p>
      * From this point onwards the game can be seen as "in-game".
      */
-    STARTING(
-            "",
-            false,
-            true
-    ),
+    STARTING(false, true),
 
     /**
      * Immediately after the starting countdown has finished players
      * are actually playing the game.
-     *
+     * <p>
      * Therefore the game phase should also be set to {@code PLAYING}.
      */
-    PLAYING(
-            "",
-            false,
-            true
-    ),
+    PLAYING(false, true),
 
     /**
      * Once a single player is left in the arena the game is about
      * to end.
-     *
+     * <p>
      * Players are being moved back to the lobby whilst the game
      * arena resets itself (TNT reset).
      */
-    ENDING(
-            "",
-            false,
-            true
-    ),
+    ENDING(false, false),
 
     /**
      * During this phase database operations are being processed, such
      * as statistics and playtime updates.
-     *
+     * <p>
      * After everything is completed, all players are kicked and the
      * server attempts to restart via the configured start script in
      * the "spigot.yml" config file.
      */
-    SHUTDOWN(
-            "",
-            false,
-            true
-    );
+    SHUTDOWN(false, false);
 
-    private final String motd;
     private final boolean joinable;
     private final boolean spectateable;
 }
