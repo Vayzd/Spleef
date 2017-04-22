@@ -218,6 +218,16 @@ public final class SpleefDataStore implements DataStore {
         }
     }
 
+    @Override
+    public void updateSubject(SpleefSubject subject, Runnable uponCompletion) {
+        submitTask(() -> {
+            updateSubject(subject);
+            if (uponCompletion != null) {
+                uponCompletion.run();
+            }
+        });
+    }
+
     private String table(Class<? extends DataStoreEntry> from) {
         return check(from, "DataStoreEntry can't be null")
                 .getAnnotation(DataStoreTable.class).name();

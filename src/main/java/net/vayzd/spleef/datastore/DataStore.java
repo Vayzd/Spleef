@@ -44,4 +44,6 @@ public interface DataStore {
     void insertSubject(SpleefSubject subject);
 
     void updateSubject(SpleefSubject subject);
+
+    void updateSubject(SpleefSubject subject, Runnable uponCompletion);
 }
