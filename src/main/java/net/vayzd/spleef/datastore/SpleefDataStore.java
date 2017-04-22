@@ -35,13 +35,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.logging.*;
 
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 
 public final class SpleefDataStore implements DataStore {
 
     private final LinkedList<String> TABLE_SCHEMA = new LinkedList<>(singletonList(
 
-            "CREATE TABLE IF NOT EXISTS `players`(" +
+            String.format("CREATE TABLE IF NOT EXISTS `%s`(" +
                     "`id` MEDIUMINT NOT NULL AUTO_INCREMENT, " +
                     "`uniqueId` VARCHAR(36) NOT NULL, " +
                     "`firstGame` INT NOT NULL, " +
@@ -56,7 +56,7 @@ public final class SpleefDataStore implements DataStore {
                     "`jumpCount` MEDIUMINT NOT NULL, " +
                     "`doubleJumpCount` MEDIUMINT NOT NULL, " +
                     "PRIMARY KEY(`id`), UNIQUE(`uniqueId`), INDEX(`pointCount`), INDEX(`winCount`), INDEX(`shotCount`)" +
-                    ") DEFAULT CHARSET=utf8;"
+                    ") DEFAULT CHARSET=utf8;", table(SpleefSubject.class))
     ));
     private final AtomicLong threadCount = new AtomicLong(0);
     private final List<Thread> threadList = new ArrayList<>();
