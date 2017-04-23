@@ -26,6 +26,7 @@ package net.vayzd.spleef;
 
 import lombok.*;
 import net.vayzd.spleef.datastore.*;
+import net.vayzd.spleef.event.*;
 import net.vayzd.spleef.listener.*;
 import net.vayzd.spleef.player.*;
 import org.bukkit.plugin.java.*;
@@ -82,7 +83,10 @@ public class SpleefPlugin extends JavaPlugin {
     }
 
     public void setGamePhase(GamePhase newGamePhase) {
-        phaseReference.set(newGamePhase);
+        getServer().getPluginManager().callEvent(new GamePhaseChangeEvent(
+                phaseReference.getAndSet(newGamePhase),
+                newGamePhase
+        ));
     }
 
     public boolean isGamePhaseEqualTo(GamePhase phaseToCheck) {
