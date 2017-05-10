@@ -34,6 +34,11 @@ import lombok.*;
 public enum GamePhase {
 
     /**
+     * Default GamePhase
+     */
+    UNSET(false, false),
+
+    /**
      * Set when the plugin has been enabled successfully.
      * Zero players online, yet ready to accept new players.
      */
