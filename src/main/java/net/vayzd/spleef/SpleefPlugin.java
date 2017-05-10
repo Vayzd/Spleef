@@ -29,6 +29,7 @@ import net.vayzd.spleef.datastore.*;
 import net.vayzd.spleef.event.*;
 import net.vayzd.spleef.listener.*;
 import net.vayzd.spleef.player.*;
+import org.bukkit.event.*;
 import org.bukkit.plugin.java.*;
 
 import java.sql.*;
@@ -45,7 +46,7 @@ public class SpleefPlugin extends JavaPlugin {
     private DataStore dataStore;
     private MapControl mapControl;
     @Getter(AccessLevel.NONE)
-    private final AtomicReference<GamePhase> phaseReference = new AtomicReference<>(null);
+    private final AtomicReference<GamePhase> phaseReference = new AtomicReference<>(GamePhase.UNSET);
 
     @Override
     public void onLoad() {
@@ -67,6 +68,16 @@ public class SpleefPlugin extends JavaPlugin {
         mapControl = new MapControl(!getServer().getVersion().contains("1.11"));
         //register listener
         getServer().getPluginManager().registerEvents(mapControl, this);
+        getServer().getPluginManager().registerEvents(new Listener() {
+            // debug listener
+            @EventHandler
+            public void onGamePhaseChange(GamePhaseChangeEvent event) {
+                getLogger().info(String.format("GamePhaseChange: %s -> %s",
+                        event.getPrevious().toString(),
+                        event.getNext().toString()));
+            }
+        }, this);
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         //once everything is loaded -> set phase to SERVER_EMPTY
         setGamePhase(GamePhase.SERVER_EMPTY);
     }
