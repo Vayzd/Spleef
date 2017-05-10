@@ -25,10 +25,12 @@
 package net.vayzd.spleef;
 
 import lombok.*;
+import net.vayzd.spleef.command.*;
 import net.vayzd.spleef.datastore.*;
 import net.vayzd.spleef.event.*;
 import net.vayzd.spleef.listener.*;
 import net.vayzd.spleef.player.*;
+import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.plugin.java.*;
 
@@ -78,6 +80,8 @@ public class SpleefPlugin extends JavaPlugin {
             }
         }, this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+
+        getServer().getPluginCommand("stats").setExecutor(new StatsCommand(this));
         //once everything is loaded -> set phase to SERVER_EMPTY
         setGamePhase(GamePhase.SERVER_EMPTY);
     }
@@ -87,6 +91,10 @@ public class SpleefPlugin extends JavaPlugin {
         //for now reset map when plugin is being disabled
         mapControl.resetMap();
         dataStore.disconnect();
+    }
+
+    public void sendPrefixedMessage(Player player, String message, Object... objects) {
+        player.sendMessage("§7[§cSpleef§7]: §r" + String.format(message, objects)); // TODO: 10.05.17 configurable prefix
     }
 
     public final GamePhase getGamePhase() {

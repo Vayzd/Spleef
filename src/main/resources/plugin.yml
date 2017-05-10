@@ -5,3 +5,6 @@ version: ${version}
 description: ${description}
 load: POSTWORLD
 database: false
+
+commands:
+  stats:
