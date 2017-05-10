@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.vayzd.spleef.datastore;
+package net.vayzd.spleef;
 
 /**
  * Represents a method which may be called once a result has been computed
