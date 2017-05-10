@@ -24,6 +24,7 @@
  */
 package net.vayzd.spleef.datastore;
 
+import net.vayzd.spleef.*;
 import net.vayzd.spleef.datastore.entry.*;
 
 import java.sql.*;
@@ -40,6 +41,10 @@ public interface DataStore {
     SpleefSubject getSubject(UUID uniqueId);
 
     void getSubject(UUID uniqueId, Completable<SpleefSubject> completable);
+
+    SpleefSubject getSubject(String name);
+
+    void getSubject(String name, Completable<SpleefSubject> completable);
 
     void insertSubject(SpleefSubject subject);
 

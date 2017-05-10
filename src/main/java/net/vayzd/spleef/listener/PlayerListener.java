@@ -29,6 +29,7 @@ public class PlayerListener implements Listener {
             if (subject == null) {
                 subject = new SpleefSubject();
                 subject.setUniqueId(uniqueId);
+                subject.setName(event.getName());
                 plugin.getDataStore().insertSubject(subject);
             }
             plugin.getOnlineCount().incrementAndGet();

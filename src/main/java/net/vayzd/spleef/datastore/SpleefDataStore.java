@@ -25,6 +25,7 @@
 package net.vayzd.spleef.datastore;
 
 import com.zaxxer.hikari.*;
+import net.vayzd.spleef.*;
 import net.vayzd.spleef.datastore.entry.*;
 import org.bukkit.configuration.file.*;
 import org.bukkit.plugin.java.*;
@@ -44,6 +45,9 @@ public final class SpleefDataStore implements DataStore {
             String.format("CREATE TABLE IF NOT EXISTS `%s`(" +
                     "`id` MEDIUMINT NOT NULL AUTO_INCREMENT, " +
                     "`uniqueId` VARCHAR(36) NOT NULL, " +
+                    "`name` VARCHAR(16) NOT NULL, " +
+                    "`nameLower` VARCHAR(16) NOT NULL, " +
+                    "`lastQuery` INT NOT NULL, " +
                     "`firstGame` INT NOT NULL, " +
                     "`lastGame` INT NOT NULL, " +
                     "`playtime` INT NOT NULL, " +
@@ -55,7 +59,8 @@ public final class SpleefDataStore implements DataStore {
                     "`hitCount` MEDIUMINT NOT NULL, " +
                     "`jumpCount` MEDIUMINT NOT NULL, " +
                     "`doubleJumpCount` MEDIUMINT NOT NULL, " +
-                    "PRIMARY KEY(`id`), UNIQUE(`uniqueId`), INDEX(`pointCount`), INDEX(`winCount`), INDEX(`shotCount`)" +
+                    "PRIMARY KEY(`id`), UNIQUE(`uniqueId`), INDEX(`nameLower`), INDEX(`pointCount`), " +
+                    "INDEX(`winCount`), INDEX(`shotCount`)" +
                     ") DEFAULT CHARSET=utf8;", table(SpleefSubject.class))
     ));
     private final AtomicLong threadCount = new AtomicLong(0);
@@ -158,27 +163,60 @@ public final class SpleefDataStore implements DataStore {
     }
 
     @Override
+    public SpleefSubject getSubject(String name) {
+        AtomicReference<SpleefSubject> reference = new AtomicReference<>(null);
+        try (Connection connection = getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(String.format(
+                    "SELECT * FROM %s WHERE nameLower=?",
+                    table(SpleefSubject.class)
+            ));
+            statement.setString(1, name.toLowerCase());
+            ResultSet set = statement.executeQuery();
+            if (!set.isClosed() && set.next()) {
+                SpleefSubject subject = new SpleefSubject();
+                subject.readFrom(set);
+                reference.set(subject);
+            }
+            set.close();
+            statement.close();
+        } catch (SQLException ex) {
+            logger.log(Level.WARNING,
+                    String.format("Unable to get subject with name='%s' from database!", name),
+                    ex);
+        }
+        return reference.get();
+    }
+
+    @Override
+    public void getSubject(String name, Completable<SpleefSubject> completable) {
+        fulfill(completable, getSubject(name));
+    }
+
+    @Override
     public void insertSubject(SpleefSubject subject) {
         UUID uniqueId = check(subject.getUniqueId(), "UniqueId of subject can't be null");
         try (Connection connection = getConnection()) {
             PreparedStatement statement = connection.prepareStatement(String.format(
-                    "INSERT INTO %s(uniqueId, firstGame, lastGame, playtime, pointCount, gameCount, winCount, " +
-                            "lossCount, shotCount, hitCount, jumpCount, doubleJumpCount) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO %s(uniqueId, name, nameLower, lastQuery, firstGame, lastGame, playtime, pointCount, " +
+                            "gameCount, winCount, lossCount, shotCount, hitCount, jumpCount, doubleJumpCount) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     table(SpleefSubject.class)
             ));
             statement.setString(1, uniqueId.toString());
-            statement.setLong(2, subject.getFirstGame());
-            statement.setLong(3, subject.getLastGame());
-            statement.setLong(4, subject.getPlaytime());
-            statement.setInt(5, subject.getPointCount());
-            statement.setInt(6, subject.getGameCount());
-            statement.setInt(7, subject.getWinCount());
-            statement.setInt(8, subject.getLossCount());
-            statement.setInt(9, subject.getShotCount());
-            statement.setInt(10, subject.getHitCount());
-            statement.setInt(11, subject.getJumpCount());
-            statement.setInt(12, subject.getDoubleJumpCount());
+            statement.setString(2, subject.getName());
+            statement.setString(3, subject.getName().toLowerCase());
+            statement.setLong(4, subject.getLastQuery());
+            statement.setLong(5, subject.getFirstGame());
+            statement.setLong(6, subject.getLastGame());
+            statement.setLong(7, subject.getPlaytime());
+            statement.setInt(8, subject.getPointCount());
+            statement.setInt(9, subject.getGameCount());
+            statement.setInt(10, subject.getWinCount());
+            statement.setInt(11, subject.getLossCount());
+            statement.setInt(12, subject.getShotCount());
+            statement.setInt(13, subject.getHitCount());
+            statement.setInt(14, subject.getJumpCount());
+            statement.setInt(15, subject.getDoubleJumpCount());
             statement.executeUpdate();
             statement.close();
         } catch (SQLException ex) {
@@ -193,22 +231,26 @@ public final class SpleefDataStore implements DataStore {
         UUID uniqueId = check(subject.getUniqueId(), "UniqueId of subject can't be null");
         try (Connection connection = getConnection()) {
             PreparedStatement statement = connection.prepareStatement(String.format(
-                    "UPDATE %s SET firstGame=?, lastGame=?, playtime=?, pointCount=?, gameCount=?, winCount=?, " +
-                            "lossCount=?, hotCount=?, hitCount=?, jumpCount=?, doubleJumpCount=? WHERE uniqueId=?",
+                    "UPDATE %s SET name=?, nameLower=?, lastQuery=?, firstGame=?, lastGame=?, playtime=?, " +
+                            "pointCount=?, gameCount=?, winCount=?, lossCount=?, hotCount=?, hitCount=?, " +
+                            "jumpCount=?, doubleJumpCount=? WHERE uniqueId=?",
                     table(SpleefSubject.class)
             ));
-            statement.setLong(1, subject.getFirstGame());
-            statement.setLong(2, subject.getLastGame());
-            statement.setLong(3, subject.getPlaytime());
-            statement.setInt(4, subject.getPointCount());
-            statement.setInt(5, subject.getGameCount());
-            statement.setInt(6, subject.getWinCount());
-            statement.setInt(7, subject.getLossCount());
-            statement.setInt(8, subject.getShotCount());
-            statement.setInt(9, subject.getHitCount());
-            statement.setInt(10, subject.getJumpCount());
-            statement.setInt(11, subject.getDoubleJumpCount());
-            statement.setString(12, uniqueId.toString());
+            statement.setString(1, subject.getName());
+            statement.setString(2, subject.getName().toLowerCase());
+            statement.setLong(3, subject.getLastQuery());
+            statement.setLong(4, subject.getFirstGame());
+            statement.setLong(5, subject.getLastGame());
+            statement.setLong(6, subject.getPlaytime());
+            statement.setInt(7, subject.getPointCount());
+            statement.setInt(8, subject.getGameCount());
+            statement.setInt(9, subject.getWinCount());
+            statement.setInt(10, subject.getLossCount());
+            statement.setInt(11, subject.getShotCount());
+            statement.setInt(12, subject.getHitCount());
+            statement.setInt(13, subject.getJumpCount());
+            statement.setInt(14, subject.getDoubleJumpCount());
+            statement.setString(15, uniqueId.toString());
             statement.executeUpdate();
             statement.close();
         } catch (SQLException ex) {

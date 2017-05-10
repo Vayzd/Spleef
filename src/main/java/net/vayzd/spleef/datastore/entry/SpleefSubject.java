@@ -37,7 +37,9 @@ import java.util.*;
 public class SpleefSubject extends DataStoreEntry {
 
     private UUID uniqueId = null;
-    private long firstGame = 0L,
+    private String name = null;
+    private long lastQuery = 0L,
+            firstGame = 0L,
             lastGame = 0L,
             playtime = 1L;
     private int pointCount = 0,
@@ -52,6 +54,8 @@ public class SpleefSubject extends DataStoreEntry {
     @Override
     public void readFrom(ResultSet set) throws SQLException {
         setUniqueId(UUID.fromString(set.getString("uniqueId")));
+        setName(set.getString("name"));
+        setLastQuery(set.getLong("lastQuery"));
         setFirstGame(set.getLong("firstGame"));
         setLastGame(set.getLong("lastGame"));
         setPlaytime(set.getLong("playtime"));
@@ -66,14 +70,14 @@ public class SpleefSubject extends DataStoreEntry {
 
     public ImmutableMap<String, Integer> getStatisticMap() {
         LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
-        map.put("pointCount", pointCount);
-        map.put("gameCount", gameCount);
-        map.put("winCount", winCount);
-        map.put("lossCount", lossCount);
-        map.put("shotCount", shotCount);
-        map.put("hitCount", hitCount);
-        map.put("jumpCount", jumpCount);
-        map.put("doubleJumpCount", doubleJumpCount);
+        map.put("Points: ", pointCount);
+        map.put("Games: ", gameCount);
+        map.put("Wins: ", winCount);
+        map.put("Losses: ", lossCount);
+        map.put("Shots: ", shotCount);
+        map.put("Hits: ", hitCount);
+        map.put("Jumps: ", jumpCount);
+        map.put("DoubleJumps: ", doubleJumpCount);
         return ImmutableMap.copyOf(map);
     }
 }
