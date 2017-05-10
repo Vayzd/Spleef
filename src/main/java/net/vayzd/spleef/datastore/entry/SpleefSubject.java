@@ -31,7 +31,7 @@ import net.vayzd.spleef.datastore.*;
 import java.sql.*;
 import java.util.*;
 
-@DataStoreTable(name = "spleef-subjects")
+@DataStoreTable(name = "subjects")
 @Getter
 @Setter
 public class SpleefSubject extends DataStoreEntry {
